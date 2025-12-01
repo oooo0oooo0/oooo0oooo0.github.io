@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master   # 监听主分支
+  workflow_dispatch:   # 增加此行
 
 jobs:
   build-deploy:

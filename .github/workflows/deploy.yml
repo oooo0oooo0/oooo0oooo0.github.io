@@ -1,0 +1,31 @@
+name: Deploy Hexo blog to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master   # 监听主分支
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate static files
+        run: npm run build || npx hexo generate
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public      # Hexo 的静态输出目录
+          publish_branch: gh-pages   # 指定发布分支，可自定义

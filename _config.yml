@@ -96,7 +96,22 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+# theme: landscape
+theme: cactus
+theme_config:
+  colorscheme: light
+  highlight: googlecode
+  social_links:
+    -
+      icon: github
+      link: http://github.com/oooo0oooo0/
+    -
+      icon: mail
+      link: mailto:oooo0oooo0@outlook.com
+  nav:
+    home: /
+    about: /about/
+    articles: /archives/
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment

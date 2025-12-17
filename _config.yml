@@ -116,6 +116,10 @@ theme_config:
     home: /
     about: /about/
     articles: /archives/
+  # 填写 Cloudflare Analytics 跟踪 ID 以启用 Cloudflare 统计分析
+  cloudflare_analytics:
+    enabled: true
+    id: 6fbb814b59b84ee181a7e023f0a159bd
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment

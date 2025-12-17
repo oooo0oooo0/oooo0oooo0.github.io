@@ -163,6 +163,13 @@ open_graph:
 # Plugins
 ##############################################################################
 
+
+# Enable mermaid support for Latex
+mermaid:
+  enabled: true
+  # default dark forest | neutral
+  theme: default
+
 # Enable MathJax support for Latex
 mathjax:
   enabled: false

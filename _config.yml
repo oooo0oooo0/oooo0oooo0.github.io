@@ -101,6 +101,10 @@ theme: cactus
 theme_config:
   colorscheme: light
   highlight: googlecode
+  mermaid:
+    enabled: true
+    # default | dark | forest | neutral
+    theme: neutral
   social_links:
     -
       icon: github

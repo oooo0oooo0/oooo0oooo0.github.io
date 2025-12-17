@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang=zh>
 <head>
-    <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="事件驱动架构在数据处理系统中的实践目录 一、引言 二、为什么需要事件机制 三、事件机制初版设计 四、事件机制升级优化 五、最佳实践与总结   一、引言在复杂的数据处理系统中，经常面临这样的挑战：核心流程相对稳定，但业务扩展需求频繁。例如，一个数据融合系统的主流程可能是：数据采集 → 数据清洗 → 数据融合 → 数据存储。但在这个过程中，我们可能需要：  在数据融合时打标签 在数据写入前统计关联信息">
+  <!-- so meta -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+  <meta name="description" content="事件驱动架构在数据处理系统中的实践目录 一、引言 二、为什么需要事件机制 三、事件机制初版设计 四、事件机制升级优化 五、最佳实践与总结   一、引言在复杂的数据处理系统中，经常面临这样的挑战：核心流程相对稳定，但业务扩展需求频繁。例如，一个数据融合系统的主流程可能是：数据采集 → 数据清洗 → 数据融合 → 数据存储。但在这个过程中，我们可能需要：  在数据融合时打标签 在数据写入前统计关联信息">
 <meta property="og:type" content="article">
 <meta property="og:title" content="事件驱动架构在数据处理系统中的实践">
 <meta property="og:url" content="https://oooo0oooo0.github.io/2025/12/17/%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8%E6%9E%B6%E6%9E%84%E5%9C%A8%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5/index.html">
@@ -14,49 +14,57 @@
 <meta property="og:description" content="事件驱动架构在数据处理系统中的实践目录 一、引言 二、为什么需要事件机制 三、事件机制初版设计 四、事件机制升级优化 五、最佳实践与总结   一、引言在复杂的数据处理系统中，经常面临这样的挑战：核心流程相对稳定，但业务扩展需求频繁。例如，一个数据融合系统的主流程可能是：数据采集 → 数据清洗 → 数据融合 → 数据存储。但在这个过程中，我们可能需要：  在数据融合时打标签 在数据写入前统计关联信息">
 <meta property="og:locale">
 <meta property="article:published_time" content="2025-12-17T03:28:24.000Z">
-<meta property="article:modified_time" content="2025-12-17T03:29:57.910Z">
+<meta property="article:modified_time" content="2025-12-17T03:51:35.680Z">
 <meta property="article:author" content="oooo0oooo0">
 <meta name="twitter:card" content="summary">
     
-    
       
         
-          <link rel="shortcut icon" href="/images/favicon.ico">
-        
-      
-      
-        
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-        
-      
-      
-        
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-        
-      
-    
-    <!-- title -->
-    <title>事件驱动架构在数据处理系统中的实践</title>
-    <!-- async scripts -->
-    <!-- Google Analytics -->
+          
+                    <link rel="shortcut icon" href="/images/favicon.ico">
+                    
+                      
+                        
+                          
+                                    <link rel="icon" type="image/png" href="/images/favicon-192x192.png"
+                                      sizes="192x192">
+                                    
+                                      
+                                        
+                                          
+                                                    <link rel="apple-touch-icon" sizes="180x180"
+                                                      href="/images/apple-touch-icon.png">
+                                                    
+                                                      
+                                                        
+                                                          <!-- title -->
+                                                          <title>
+                                                            事件驱动架构在数据处理系统中的实践
+                                                          </title>
+                                                          <!-- async scripts -->
+                                                          <!-- Google Analytics -->
 
 
-    <!-- Umami Analytics -->
+                                                            <!-- Umami Analytics -->
 
 
-    <!-- styles -->
-    
+                                                              <!-- styles -->
+                                                              
 <link rel="stylesheet" href="/css/style.css">
 
-    <!-- persian styles -->
-    
-    <!-- rss -->
-    
-    
-	<!-- mathjax -->
-	
+                                                                <!-- persian styles -->
+                                                                
+                                                                      <!-- rss -->
+                                                                      
+                                                                            
+                                                                                <!-- mathjax -->
+                                                                                
+                                                                                    
+                                                                                      <script
+                                                                                        src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+                                                                                      <script>mermaid.initialize({ startOnLoad: true, theme: "neutral" });</script>
+                                                                                      
 <meta name="generator" content="Hexo 8.1.1"></head>
-
 <body class="max-width mx-auto px3 ltr">
     
       <div id="header-post">
@@ -168,7 +176,28 @@
 </ul>
 <p>如果将这些逻辑都硬编码到主流程中，代码将变得臃肿且难以维护。<strong>事件驱动架构</strong>正是解决这类问题的优雅方案。</p>
 <hr>
-<h2 id="二、为什么需要事件机制"><a href="#二、为什么需要事件机制" class="headerlink" title="二、为什么需要事件机制"></a>二、为什么需要事件机制</h2><h3 id="2-1-业务场景分析"><a href="#2-1-业务场景分析" class="headerlink" title="2.1 业务场景分析"></a>2.1 业务场景分析</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    subgraph 主流程</span><br><span class="line">        A[数据采集] --&gt; B[数据清洗]</span><br><span class="line">        B --&gt; C[数据融合]</span><br><span class="line">        C --&gt; D[数据存储]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    subgraph 扩展需求</span><br><span class="line">        E[日志记录]</span><br><span class="line">        F[标签处理]</span><br><span class="line">        G[权限字段填充]</span><br><span class="line">        H[关联数据统计]</span><br><span class="line">        I[缓存更新]</span><br><span class="line">        J[通知推送]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    C -.-&gt; E</span><br><span class="line">    C -.-&gt; F</span><br><span class="line">    C -.-&gt; G</span><br><span class="line">    C -.-&gt; H</span><br><span class="line">    D -.-&gt; I</span><br><span class="line">    D -.-&gt; J</span><br></pre></td></tr></table></figure>
+<h2 id="二、为什么需要事件机制"><a href="#二、为什么需要事件机制" class="headerlink" title="二、为什么需要事件机制"></a>二、为什么需要事件机制</h2><h3 id="2-1-业务场景分析"><a href="#2-1-业务场景分析" class="headerlink" title="2.1 业务场景分析"></a>2.1 业务场景分析</h3><pre class="mermaid">flowchart LR
+    subgraph 主流程
+        A[数据采集] --> B[数据清洗]
+        B --> C[数据融合]
+        C --> D[数据存储]
+    end
+    
+    subgraph 扩展需求
+        E[日志记录]
+        F[标签处理]
+        G[权限字段填充]
+        H[关联数据统计]
+        I[缓存更新]
+        J[通知推送]
+    end
+    
+    C -.-> E
+    C -.-> F
+    C -.-> G
+    C -.-> H
+    D -.-> I
+    D -.-> J</pre>
 
 <h3 id="2-2-传统方案的问题"><a href="#2-2-传统方案的问题" class="headerlink" title="2.2 传统方案的问题"></a>2.2 传统方案的问题</h3><p><strong>硬编码方式</strong>：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">function processData(data):</span><br><span class="line">    // 主流程</span><br><span class="line">    cleanedData = clean(data)</span><br><span class="line">    mergedData = merge(cleanedData)</span><br><span class="line">    </span><br><span class="line">    // 扩展逻辑（硬编码）</span><br><span class="line">    logProcess(mergedData)           // 日志</span><br><span class="line">    addTags(mergedData)              // 标签</span><br><span class="line">    fillPermissionFields(mergedData) // 权限</span><br><span class="line">    countRelations(mergedData)       // 统计</span><br><span class="line">    </span><br><span class="line">    save(mergedData)</span><br><span class="line">    </span><br><span class="line">    // 更多扩展...</span><br><span class="line">    updateCache()</span><br><span class="line">    sendNotification()</span><br></pre></td></tr></table></figure>
@@ -180,7 +209,29 @@
 <li><strong>维护成本高</strong>：代码膨胀，难以理解和测试</li>
 <li><strong>灵活性差</strong>：无法动态启用&#x2F;禁用某些处理逻辑</li>
 </ul>
-<h3 id="2-3-事件驱动的优势"><a href="#2-3-事件驱动的优势" class="headerlink" title="2.3 事件驱动的优势"></a>2.3 事件驱动的优势</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">flowchart TB</span><br><span class="line">    subgraph 主流程</span><br><span class="line">        A[数据采集] --&gt; B[数据清洗]</span><br><span class="line">        B --&gt; C[数据融合]</span><br><span class="line">        C --&gt; D[数据存储]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    subgraph EventBus</span><br><span class="line">        E[事件总线]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    subgraph 处理器</span><br><span class="line">        H1[日志处理器]</span><br><span class="line">        H2[标签处理器]</span><br><span class="line">        H3[权限处理器]</span><br><span class="line">        H4[统计处理器]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    C --&gt;|触发事件| E</span><br><span class="line">    E --&gt;|分发| H1</span><br><span class="line">    E --&gt;|分发| H2</span><br><span class="line">    E --&gt;|分发| H3</span><br><span class="line">    E --&gt;|分发| H4</span><br></pre></td></tr></table></figure>
+<h3 id="2-3-事件驱动的优势"><a href="#2-3-事件驱动的优势" class="headerlink" title="2.3 事件驱动的优势"></a>2.3 事件驱动的优势</h3><pre class="mermaid">flowchart TB
+    subgraph 主流程
+        A[数据采集] --> B[数据清洗]
+        B --> C[数据融合]
+        C --> D[数据存储]
+    end
+    
+    subgraph EventBus
+        E[事件总线]
+    end
+    
+    subgraph 处理器
+        H1[日志处理器]
+        H2[标签处理器]
+        H3[权限处理器]
+        H4[统计处理器]
+    end
+    
+    C -->|触发事件| E
+    E -->|分发| H1
+    E -->|分发| H2
+    E -->|分发| H3
+    E -->|分发| H4</pre>
 
 <p><strong>优势</strong>：</p>
 <ul>
@@ -191,7 +242,11 @@
 </ul>
 <hr>
 <h2 id="三、事件机制初版设计"><a href="#三、事件机制初版设计" class="headerlink" title="三、事件机制初版设计"></a>三、事件机制初版设计</h2><h3 id="3-1-核心概念"><a href="#3-1-核心概念" class="headerlink" title="3.1 核心概念"></a>3.1 核心概念</h3><p>事件机制的核心包含四个要素：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    A[事件定义] --&gt; B[事件注册]</span><br><span class="line">    B --&gt; C[事件存储]</span><br><span class="line">    C --&gt; D[事件触发]</span><br><span class="line">    D --&gt; E[事件执行]</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart LR
+    A[事件定义] --> B[事件注册]
+    B --> C[事件存储]
+    C --> D[事件触发]
+    D --> E[事件执行]</pre>
 
 <table>
 <thead>
@@ -248,7 +303,18 @@
 <h3 id="3-4-事件存储"><a href="#3-4-事件存储" class="headerlink" title="3.4 事件存储"></a>3.4 事件存储</h3><p>事件总线内部维护事件与处理器的映射：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">class EventBus:</span><br><span class="line">    // 存储结构：事件名 -&gt; 处理器列表</span><br><span class="line">    handlers: Map&lt;string, List&lt;Handler&gt;&gt;</span><br><span class="line">    </span><br><span class="line">    struct Handler:</span><br><span class="line">        func: HandlerFunc</span><br><span class="line">        description: string</span><br><span class="line">    </span><br><span class="line">    function registerHandler(event, handler, desc):</span><br><span class="line">        if not handlers.has(event):</span><br><span class="line">            handlers[event] = []</span><br><span class="line">        handlers[event].append(Handler&#123;func: handler, description: desc&#125;)</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">flowchart TB</span><br><span class="line">    subgraph EventBus存储结构</span><br><span class="line">        E1[task.start] --&gt; H1[日志处理器]</span><br><span class="line">        E1 --&gt; H2[准备处理器]</span><br><span class="line">        </span><br><span class="line">        E2[data.merge] --&gt; H3[业务处理器]</span><br><span class="line">        E2 --&gt; H4[标签处理器]</span><br><span class="line">        E2 --&gt; H5[部门处理器]</span><br><span class="line">        </span><br><span class="line">        E3[data.merge.end] --&gt; H6[权限处理器]</span><br><span class="line">        E3 --&gt; H7[校准处理器]</span><br><span class="line">    end</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart TB
+    subgraph EventBus存储结构
+        E1[task.start] --> H1[日志处理器]
+        E1 --> H2[准备处理器]
+        
+        E2[data.merge] --> H3[业务处理器]
+        E2 --> H4[标签处理器]
+        E2 --> H5[部门处理器]
+        
+        E3[data.merge.end] --> H6[权限处理器]
+        E3 --> H7[校准处理器]
+    end</pre>
 
 <h3 id="3-5-事件触发"><a href="#3-5-事件触发" class="headerlink" title="3.5 事件触发"></a>3.5 事件触发</h3><p>在业务流程的关键节点触发事件：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">function mergeDataFlow(taskId, dataList):</span><br><span class="line">    // 触发任务开始事件</span><br><span class="line">    eventBus.emit(EVENT_TASK_START, &#123;taskId: taskId&#125;)</span><br><span class="line">    </span><br><span class="line">    for data in dataList:</span><br><span class="line">        // 触发单条数据融合事件</span><br><span class="line">        eventBus.emit(EVENT_DATA_MERGE, &#123;taskId: taskId, data: data&#125;)</span><br><span class="line">        </span><br><span class="line">        // 执行融合逻辑</span><br><span class="line">        mergedData = doMerge(data)</span><br><span class="line">        </span><br><span class="line">        // 触发单条数据融合结束事件</span><br><span class="line">        eventBus.emit(EVENT_DATA_MERGE_END, &#123;taskId: taskId, data: mergedData&#125;)</span><br><span class="line">    </span><br><span class="line">    // 触发批量写入前事件</span><br><span class="line">    eventBus.emit(EVENT_BATCH_BEFORE_WRITE, &#123;taskId: taskId, dataList: mergedDataList&#125;)</span><br><span class="line">    </span><br><span class="line">    // 写入数据</span><br><span class="line">    batchWrite(mergedDataList)</span><br><span class="line">    </span><br><span class="line">    // 触发任务结束事件</span><br><span class="line">    eventBus.emit(EVENT_TASK_END, &#123;taskId: taskId&#125;)</span><br></pre></td></tr></table></figure>
@@ -256,7 +322,27 @@
 <h3 id="3-6-事件执行"><a href="#3-6-事件执行" class="headerlink" title="3.6 事件执行"></a>3.6 事件执行</h3><p>事件触发后，执行所有注册的处理器：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">function emit(event, data):</span><br><span class="line">    handlers = this.handlers[event]</span><br><span class="line">    if handlers is empty:</span><br><span class="line">        return</span><br><span class="line">    </span><br><span class="line">    // 并发执行所有处理器</span><br><span class="line">    waitGroup = new WaitGroup()</span><br><span class="line">    </span><br><span class="line">    for handler in handlers:</span><br><span class="line">        waitGroup.add(1)</span><br><span class="line">        go function():</span><br><span class="line">            defer waitGroup.done()</span><br><span class="line">            try:</span><br><span class="line">                handler.func(data)</span><br><span class="line">            catch error:</span><br><span class="line">                log.error(&quot;处理器执行失败: &quot; + handler.description + &quot;, error: &quot; + error)</span><br><span class="line">        ()</span><br><span class="line">    </span><br><span class="line">    waitGroup.wait()</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant Main as 主流程</span><br><span class="line">    participant EB as EventBus</span><br><span class="line">    participant H1 as 处理器1</span><br><span class="line">    participant H2 as 处理器2</span><br><span class="line">    participant H3 as 处理器3</span><br><span class="line">    </span><br><span class="line">    Main-&gt;&gt;EB: emit(event, data)</span><br><span class="line">    </span><br><span class="line">    par 并发执行</span><br><span class="line">        EB-&gt;&gt;H1: handler1(data)</span><br><span class="line">        H1--&gt;&gt;EB: done</span><br><span class="line">    and</span><br><span class="line">        EB-&gt;&gt;H2: handler2(data)</span><br><span class="line">        H2--&gt;&gt;EB: done</span><br><span class="line">    and</span><br><span class="line">        EB-&gt;&gt;H3: handler3(data)</span><br><span class="line">        H3--&gt;&gt;EB: done</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    EB--&gt;&gt;Main: 所有处理器执行完成</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">sequenceDiagram
+    participant Main as 主流程
+    participant EB as EventBus
+    participant H1 as 处理器1
+    participant H2 as 处理器2
+    participant H3 as 处理器3
+    
+    Main->>EB: emit(event, data)
+    
+    par 并发执行
+        EB->>H1: handler1(data)
+        H1-->>EB: done
+    and
+        EB->>H2: handler2(data)
+        H2-->>EB: done
+    and
+        EB->>H3: handler3(data)
+        H3-->>EB: done
+    end
+    
+    EB-->>Main: 所有处理器执行完成</pre>
 
 <h3 id="3-7-初版设计的问题"><a href="#3-7-初版设计的问题" class="headerlink" title="3.7 初版设计的问题"></a>3.7 初版设计的问题</h3><p>随着系统演进，初版设计暴露出一些问题：</p>
 <table>
@@ -289,14 +375,26 @@
 </tbody></table>
 <hr>
 <h2 id="四、事件机制升级优化"><a href="#四、事件机制升级优化" class="headerlink" title="四、事件机制升级优化"></a>四、事件机制升级优化</h2><h3 id="4-1-优先级与依赖链"><a href="#4-1-优先级与依赖链" class="headerlink" title="4.1 优先级与依赖链"></a>4.1 优先级与依赖链</h3><h4 id="问题场景"><a href="#问题场景" class="headerlink" title="问题场景"></a>问题场景</h4><p>某些处理器之间存在依赖关系：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    A[业务系统提取] --&gt; B[权限字段填充]</span><br><span class="line">    A --&gt; C[标签处理]</span><br><span class="line">    B --&gt; D[数据校验]</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart LR
+    A[业务系统提取] --> B[权限字段填充]
+    A --> C[标签处理]
+    B --> D[数据校验]</pre>
 
 <p>如果 <strong>权限字段填充</strong> 在 <strong>业务系统提取</strong> 之前执行，将无法获取正确的业务系统信息，因为权限字段依赖于业务系统信息。</p>
 <h4 id="解决方案：引入优先级和分组"><a href="#解决方案：引入优先级和分组" class="headerlink" title="解决方案：引入优先级和分组"></a>解决方案：引入优先级和分组</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 扩展处理器结构</span><br><span class="line">struct Handler:</span><br><span class="line">    func: HandlerFunc</span><br><span class="line">    description: string</span><br><span class="line">    priority: int</span><br><span class="line">    group: string</span><br></pre></td></tr></table></figure>
 
 <p>所有分组按照顺序执行，组内按照优先级执行。这就能实现组内依赖链，组间并发执行。平衡依赖顺序和性能。</p>
 <p><strong>执行顺序</strong>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    subgraph 组1内部</span><br><span class="line">        P1[高优先级] --&gt; P2[普通优先级]</span><br><span class="line">        P2 --&gt; P3[低优先级]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph 组2内部</span><br><span class="line">        h1[高优先级] --&gt; h2[普通优先级]</span><br><span class="line">        h2 --&gt; h3[低优先级]</span><br><span class="line">    end</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart LR
+    subgraph 组1内部
+        P1[高优先级] --> P2[普通优先级]
+        P2 --> P3[低优先级]
+    end
+
+    subgraph 组2内部
+        h1[高优先级] --> h2[普通优先级]
+        h2 --> h3[低优先级]
+    end</pre>
 
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">function emit(event, data):</span><br><span class="line">    handlers = this.handlers[event]</span><br><span class="line">    </span><br><span class="line">    // 按分组和优先级排序</span><br><span class="line">    sortedHandlers = sortByGroupAndPriority(handlers)</span><br><span class="line">    </span><br><span class="line">    // 分组顺序执行</span><br><span class="line">    for group in allGroups:</span><br><span class="line">        groupHandlers = filter(sortedHandlers, h =&gt; h.group == group)</span><br><span class="line">        executeHandlerGroup(groupHandlers, data)</span><br></pre></td></tr></table></figure>
 
@@ -315,12 +413,36 @@
 <h3 id="4-3-执行控制"><a href="#4-3-执行控制" class="headerlink" title="4.3 执行控制"></a>4.3 执行控制</h3><h4 id="4-3-1-超时控制"><a href="#4-3-1-超时控制" class="headerlink" title="4.3.1 超时控制"></a>4.3.1 超时控制</h4><p><strong>问题</strong>：处理器可能因网络、数据库等原因无限阻塞。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">function executeWithTimeout(handler, data, timeout):</span><br><span class="line">    resultChan = make(chan error, 1)</span><br><span class="line">    </span><br><span class="line">    go function():</span><br><span class="line">        try:</span><br><span class="line">            handler.func(data)</span><br><span class="line">            resultChan &lt;- nil</span><br><span class="line">        catch error:</span><br><span class="line">            resultChan &lt;- error</span><br><span class="line">    ()</span><br><span class="line">    </span><br><span class="line">    select:</span><br><span class="line">        case err = &lt;-resultChan:</span><br><span class="line">            return err</span><br><span class="line">        case &lt;-time.after(timeout):</span><br><span class="line">            return TimeoutError(&quot;处理器超时: &quot; + handler.description)</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant EB as EventBus</span><br><span class="line">    participant H as Handler</span><br><span class="line">    participant Timer as 超时计时器</span><br><span class="line">    </span><br><span class="line">    EB-&gt;&gt;H: 执行处理器</span><br><span class="line">    EB-&gt;&gt;Timer: 启动超时计时</span><br><span class="line">    </span><br><span class="line">    alt 正常完成</span><br><span class="line">        H--&gt;&gt;EB: 返回结果</span><br><span class="line">        EB-&gt;&gt;Timer: 取消计时</span><br><span class="line">    else 超时</span><br><span class="line">        Timer--&gt;&gt;EB: 超时信号</span><br><span class="line">        EB-&gt;&gt;EB: 记录超时，继续执行</span><br><span class="line">    end</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">sequenceDiagram
+    participant EB as EventBus
+    participant H as Handler
+    participant Timer as 超时计时器
+    
+    EB->>H: 执行处理器
+    EB->>Timer: 启动超时计时
+    
+    alt 正常完成
+        H-->>EB: 返回结果
+        EB->>Timer: 取消计时
+    else 超时
+        Timer-->>EB: 超时信号
+        EB->>EB: 记录超时，继续执行
+    end</pre>
 
 <h4 id="4-3-2-异常范围收敛（熔断机制）"><a href="#4-3-2-异常范围收敛（熔断机制）" class="headerlink" title="4.3.2 异常范围收敛（熔断机制）"></a>4.3.2 异常范围收敛（熔断机制）</h4><p><strong>问题</strong>：某个处理器频繁失败会影响整体性能。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">class CircuitBreaker:</span><br><span class="line">    failureThreshold: int = 5      // 失败阈值</span><br><span class="line">    resetTimeout: duration = 60s   // 重置超时</span><br><span class="line">    failureCount: int = 0</span><br><span class="line">    lastFailureTime: time</span><br><span class="line">    state: enum &#123;CLOSED, OPEN, HALF_OPEN&#125;</span><br><span class="line">    </span><br><span class="line">    function call(fn):</span><br><span class="line">        // 熔断器状态机：防止故障扩散</span><br><span class="line">        // 当失败次数达到阈值时，进入OPEN状态，快速失败</span><br><span class="line">        // 超过重置时间后进入HALF_OPEN状态尝试恢复</span><br><span class="line">        // 在HALF_OPEN状态下只允许一次请求通过，验证服务是否恢复</span><br><span class="line">        // 避免故障传播，保障系统稳定性</span><br><span class="line">        // 通过这种方式，可以在服务短暂故障后自动恢复，避免长时间不可用</span><br><span class="line">        if state == OPEN:</span><br><span class="line">            if time.since(lastFailureTime) &gt; resetTimeout:</span><br><span class="line">                state = HALF_OPEN</span><br><span class="line">            else:</span><br><span class="line">                return CircuitOpenError()</span><br><span class="line">        </span><br><span class="line">        try:</span><br><span class="line">            result = fn()</span><br><span class="line">            onSuccess()</span><br><span class="line">            return result</span><br><span class="line">        catch error:</span><br><span class="line">            onFailure()</span><br><span class="line">            throw error</span><br><span class="line">    </span><br><span class="line">    function onSuccess():</span><br><span class="line">        failureCount = 0</span><br><span class="line">        state = CLOSED</span><br><span class="line">    </span><br><span class="line">    function onFailure():</span><br><span class="line">        failureCount++</span><br><span class="line">        lastFailureTime = time.now()</span><br><span class="line">        if failureCount &gt;= failureThreshold:</span><br><span class="line">            state = OPEN</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">stateDiagram-v2</span><br><span class="line">    [*] --&gt; CLOSED</span><br><span class="line">    </span><br><span class="line">    CLOSED --&gt; OPEN: 失败次数 &gt;= 阈值</span><br><span class="line">    OPEN --&gt; HALF_OPEN: 超时后尝试</span><br><span class="line">    HALF_OPEN --&gt; CLOSED: 调用成功</span><br><span class="line">    HALF_OPEN --&gt; OPEN: 调用失败</span><br><span class="line">    </span><br><span class="line">    note right of CLOSED: 正常执行</span><br><span class="line">    note right of OPEN: 快速失败，跳过执行</span><br><span class="line">    note right of HALF_OPEN: 尝试恢复</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">stateDiagram-v2
+    [*] --> CLOSED
+    
+    CLOSED --> OPEN: 失败次数 >= 阈值
+    OPEN --> HALF_OPEN: 超时后尝试
+    HALF_OPEN --> CLOSED: 调用成功
+    HALF_OPEN --> OPEN: 调用失败
+    
+    note right of CLOSED: 正常执行
+    note right of OPEN: 快速失败，跳过执行
+    note right of HALF_OPEN: 尝试恢复</pre>
 
 <p>熔断器（Circuit Breaker）的三个状态是业界标准设计，源自 Martin Fowler 提出的熔断器模式：</p>
 <table>
@@ -380,12 +502,46 @@
 </tr>
 </tbody></table>
 <h3 id="4-4-数据共享"><a href="#4-4-数据共享" class="headerlink" title="4.4 数据共享"></a>4.4 数据共享</h3><h4 id="问题场景-2"><a href="#问题场景-2" class="headerlink" title="问题场景"></a>问题场景</h4><p>多个处理器可能需要相同的数据：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">flowchart TB</span><br><span class="line">    subgraph 处理器</span><br><span class="line">        H1[标签处理器]</span><br><span class="line">        H2[权限处理器]</span><br><span class="line">        H3[统计处理器]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    subgraph 数据查询</span><br><span class="line">        D1[查询业务系统]</span><br><span class="line">        D2[查询业务系统]</span><br><span class="line">        D3[查询业务系统]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    H1 --&gt; D1</span><br><span class="line">    H2 --&gt; D2</span><br><span class="line">    H3 --&gt; D3</span><br><span class="line">    </span><br><span class="line">    D1 --&gt; DB[(数据库)]</span><br><span class="line">    D2 --&gt; DB</span><br><span class="line">    D3 --&gt; DB</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart TB
+    subgraph 处理器
+        H1[标签处理器]
+        H2[权限处理器]
+        H3[统计处理器]
+    end
+    
+    subgraph 数据查询
+        D1[查询业务系统]
+        D2[查询业务系统]
+        D3[查询业务系统]
+    end
+    
+    H1 --> D1
+    H2 --> D2
+    H3 --> D3
+    
+    D1 --> DB[(数据库)]
+    D2 --> DB
+    D3 --> DB</pre>
 
 <p><strong>问题</strong>：重复查询，浪费资源。</p>
 <h4 id="解决方案：事件上下文"><a href="#解决方案：事件上下文" class="headerlink" title="解决方案：事件上下文"></a>解决方案：事件上下文</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">struct EventContext:</span><br><span class="line">    eventName: string</span><br><span class="line">    traceId: string</span><br><span class="line">    startTime: time</span><br><span class="line">    cache: ConcurrentMap  // 线程安全的缓存</span><br><span class="line"></span><br><span class="line">// 修改处理器签名</span><br><span class="line">type HandlerFuncV2 = function(ctx: EventContext, data: any) -&gt; error</span><br><span class="line"></span><br><span class="line">// 处理器使用缓存</span><br><span class="line">function tagHandler(ctx, data):</span><br><span class="line">    cacheKey = &quot;business_systems&quot;</span><br><span class="line">    </span><br><span class="line">    // 尝试从缓存获取</span><br><span class="line">    if cached = ctx.cache.get(cacheKey):</span><br><span class="line">        businessList = cached</span><br><span class="line">    else:</span><br><span class="line">        // 查询并缓存</span><br><span class="line">        businessList = queryBusinessSystems()</span><br><span class="line">        ctx.cache.set(cacheKey, businessList)</span><br><span class="line">    </span><br><span class="line">    // 使用 businessList 处理标签</span><br><span class="line">    applyTags(data, businessList)</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">flowchart TB</span><br><span class="line">    subgraph EventContext</span><br><span class="line">        Cache[共享缓存]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    subgraph 处理器</span><br><span class="line">        H1[标签处理器]</span><br><span class="line">        H2[权限处理器]</span><br><span class="line">        H3[统计处理器]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    H1 --&gt;|1. 查询并缓存| Cache</span><br><span class="line">    H2 --&gt;|2. 从缓存读取| Cache</span><br><span class="line">    H3 --&gt;|3. 从缓存读取| Cache</span><br><span class="line">    </span><br><span class="line">    Cache -.-&gt;|首次查询| DB[(数据库)]</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart TB
+    subgraph EventContext
+        Cache[共享缓存]
+    end
+    
+    subgraph 处理器
+        H1[标签处理器]
+        H2[权限处理器]
+        H3[统计处理器]
+    end
+    
+    H1 -->|1. 查询并缓存| Cache
+    H2 -->|2. 从缓存读取| Cache
+    H3 -->|3. 从缓存读取| Cache
+    
+    Cache -.->|首次查询| DB[(数据库)]</pre>
 
 <p><strong>优势</strong>：</p>
 <ul>
@@ -407,7 +563,10 @@
 <li><strong>优雅降级</strong>：非关键处理器失败不应影响主流程</li>
 <li><strong>可观测</strong>：记录关键指标，便于监控和排查</li>
 </ol>
-<h3 id="5-3-架构演进路线"><a href="#5-3-架构演进路线" class="headerlink" title="5.3 架构演进路线"></a>5.3 架构演进路线</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    V1[初版&lt;br/&gt;基础事件机制] --&gt; V2[优化版&lt;br/&gt;优先级+分组]</span><br><span class="line">    V2 --&gt; V3[增强版&lt;br/&gt;超时+熔断]</span><br><span class="line">    V3 --&gt; V4[完善版&lt;br/&gt;监控+共享]</span><br></pre></td></tr></table></figure>
+<h3 id="5-3-架构演进路线"><a href="#5-3-架构演进路线" class="headerlink" title="5.3 架构演进路线"></a>5.3 架构演进路线</h3><pre class="mermaid">flowchart LR
+    V1[初版<br/>基础事件机制] --> V2[优化版<br/>优先级+分组]
+    V2 --> V3[增强版<br/>超时+熔断]
+    V3 --> V4[完善版<br/>监控+共享]</pre>
 
 <table>
 <thead>
@@ -447,7 +606,49 @@
 </ul>
 <p>关键是要根据实际业务场景，选择合适的优化策略，避免过度设计。</p>
 <hr>
-<h2 id="附录：完整架构图"><a href="#附录：完整架构图" class="headerlink" title="附录：完整架构图"></a>附录：完整架构图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">flowchart TB</span><br><span class="line">    subgraph 主流程</span><br><span class="line">        M1[数据采集] --&gt; M2[数据清洗]</span><br><span class="line">        M2 --&gt; M3[数据融合]</span><br><span class="line">        M3 --&gt; M4[数据存储]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    subgraph EventBus</span><br><span class="line">        EB[事件总线]</span><br><span class="line">        MC[指标收集器]</span><br><span class="line">        CB[熔断器]</span><br><span class="line">        CTX[事件上下文]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    subgraph 处理器分组</span><br><span class="line">        subgraph PREPARATION</span><br><span class="line">            P1[数据预加载]</span><br><span class="line">            P2[缓存预热]</span><br><span class="line">        end</span><br><span class="line">        </span><br><span class="line">        subgraph BUSINESS</span><br><span class="line">            B1[业务逻辑A]</span><br><span class="line">            B2[业务逻辑B]</span><br><span class="line">        end</span><br><span class="line">        </span><br><span class="line">        subgraph PERMISSION</span><br><span class="line">            PM1[权限填充]</span><br><span class="line">        end</span><br><span class="line">        </span><br><span class="line">        subgraph LOGGING</span><br><span class="line">            L1[日志记录]</span><br><span class="line">            L2[统计上报]</span><br><span class="line">        end</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    M3 --&gt;|触发事件| EB</span><br><span class="line">    EB --&gt; CTX</span><br><span class="line">    CTX --&gt; PREPARATION</span><br><span class="line">    PREPARATION --&gt; BUSINESS</span><br><span class="line">    BUSINESS --&gt; PERMISSION</span><br><span class="line">    </span><br><span class="line">    EB --&gt; MC</span><br><span class="line">    EB --&gt; CB</span><br></pre></td></tr></table></figure>
+<h2 id="附录：完整架构图"><a href="#附录：完整架构图" class="headerlink" title="附录：完整架构图"></a>附录：完整架构图</h2><pre class="mermaid">flowchart TB
+    subgraph 主流程
+        M1[数据采集] --> M2[数据清洗]
+        M2 --> M3[数据融合]
+        M3 --> M4[数据存储]
+    end
+    
+    subgraph EventBus
+        EB[事件总线]
+        MC[指标收集器]
+        CB[熔断器]
+        CTX[事件上下文]
+    end
+    
+    subgraph 处理器分组
+        subgraph PREPARATION
+            P1[数据预加载]
+            P2[缓存预热]
+        end
+        
+        subgraph BUSINESS
+            B1[业务逻辑A]
+            B2[业务逻辑B]
+        end
+        
+        subgraph PERMISSION
+            PM1[权限填充]
+        end
+        
+        subgraph LOGGING
+            L1[日志记录]
+            L2[统计上报]
+        end
+    end
+    
+    M3 -->|触发事件| EB
+    EB --> CTX
+    CTX --> PREPARATION
+    PREPARATION --> BUSINESS
+    BUSINESS --> PERMISSION
+    
+    EB --> MC
+    EB --> CB</pre>
 
   </div>
 </article>

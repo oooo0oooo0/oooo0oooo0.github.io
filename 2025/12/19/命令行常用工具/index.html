@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <!-- so meta -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+  <meta name="description" content="scchttps:&#x2F;&#x2F;github.com&#x2F;boyter&#x2F;scc scc 是一个用于统计代码行数的工具，可以统计代码行数、注释行数、空白行数等。 安装：brew install scc 使用：scc 123456789-h                                    显示帮助-f, --format string                   输出格式 [tabul">
+<meta property="og:type" content="article">
+<meta property="og:title" content="命令行常用工具">
+<meta property="og:url" content="https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="scchttps:&#x2F;&#x2F;github.com&#x2F;boyter&#x2F;scc scc 是一个用于统计代码行数的工具，可以统计代码行数、注释行数、空白行数等。 安装：brew install scc 使用：scc 123456789-h                                    显示帮助-f, --format string                   输出格式 [tabul">
+<meta property="og:locale">
+<meta property="article:published_time" content="2025-12-19T06:40:53.000Z">
+<meta property="article:modified_time" content="2025-12-19T12:43:34.168Z">
+<meta property="article:author" content="oooo0oooo0">
+<meta name="twitter:card" content="summary">
+    
+      
+        
+          
+                    <link rel="shortcut icon" href="/images/favicon.ico">
+                    
+                      
+                        
+                          
+                                    <link rel="icon" type="image/png" href="/images/favicon-192x192.png"
+                                      sizes="192x192">
+                                    
+                                      
+                                        
+                                          
+                                                    <link rel="apple-touch-icon" sizes="180x180"
+                                                      href="/images/apple-touch-icon.png">
+                                                    
+                                                      
+                                                        
+                                                          <!-- title -->
+                                                          <title>
+                                                            命令行常用工具
+                                                          </title>
+                                                          <!-- async scripts -->
+                                                          <!-- Google Analytics -->
+
+
+                                                            <!-- Umami Analytics -->
+
+
+                                                              <!-- styles -->
+                                                              
+<link rel="stylesheet" href="/css/style.css">
+
+                                                                <!-- persian styles -->
+                                                                
+                                                                      <!-- rss -->
+                                                                      
+                                                                            
+                                                                                <!-- mathjax -->
+                                                                                
+                                                                                    
+                                                                                      <script
+                                                                                        src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+                                                                                      <script>mermaid.initialize({ startOnLoad: true, theme: "neutral" });</script>
+                                                                                      
+<meta name="generator" content="Hexo 8.1.1"></head>
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/12/17/%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8%E6%9E%B6%E6%9E%84%E5%9C%A8%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&text=命令行常用工具"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&title=命令行常用工具"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&is_video=false&description=命令行常用工具"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=命令行常用工具&body=Check out this article: https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&title=命令行常用工具"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&title=命令行常用工具"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&title=命令行常用工具"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&title=命令行常用工具"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&name=命令行常用工具&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&t=命令行常用工具"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#scc"><span class="toc-number">1.</span> <span class="toc-text">scc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#micro"><span class="toc-number">2.</span> <span class="toc-text">micro</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#eza"><span class="toc-number">3.</span> <span class="toc-text">eza</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tldr"><span class="toc-number">4.</span> <span class="toc-text">tldr</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#weekly-git-summary"><span class="toc-number">5.</span> <span class="toc-text">weekly-git-summary</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        命令行常用工具
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">oooo0oooo0</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-12-19T06:40:53.000Z" class="dt-published" itemprop="datePublished">2025-12-19</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="scc"><a href="#scc" class="headerlink" title="scc"></a>scc</h2><p><a target="_blank" rel="noopener" href="https://github.com/boyter/scc">https://github.com/boyter/scc</a></p>
+<p>scc 是一个用于统计代码行数的工具，可以统计代码行数、注释行数、空白行数等。</p>
+<p>安装：<code>brew install scc</code></p>
+<p>使用：<code>scc</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">-h                                    显示帮助</span><br><span class="line">-f, --format string                   输出格式 [tabular, wide, json, json2, csv, csv-stream, cloc-yaml, html, html-table, sql, sql-insert, openmetrics] (default <span class="string">&quot;tabular&quot;</span>)</span><br><span class="line">--exclude-dir strings                 排除目录 (default [.git,.hg,.svn])</span><br><span class="line">-x, --exclude-ext strings             排除文件扩展名 (overrides include-ext) [comma separated list: e.g. go,java,js]</span><br><span class="line">-n, --exclude-file strings            排除文件</span><br><span class="line">-M, --not-match stringArray           排除文件和目录匹配正则表达式</span><br><span class="line">-i, --include-ext strings             限制文件扩展名 [comma separated list: e.g. go,java,js]</span><br><span class="line">-o, --output string                   输出文件 (default stdout)</span><br><span class="line">-p, --percent                         输出百分比</span><br></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scc --exclude-dir databases --exclude-file <span class="string">&#x27;test.go&#x27;</span> --exclude-file <span class="string">&#x27;rule_infos_level.go&#x27;</span> --exclude-file <span class="string">&#x27;pb.go&#x27;</span> -p -i go</span><br></pre></td></tr></table></figure>
+
+<p>对比<code>cloc</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cloc --exclude-dir=databases --include-lang=go --not-match-f=<span class="string">&#x27;test\.go$&#x27;</span> --not-match-f=<span class="string">&quot;rule_infos_level.go&quot;</span> --not-match-f=<span class="string">&#x27;pb.go$&#x27;</span> --fullpath .</span><br></pre></td></tr></table></figure>
+
+<h2 id="micro"><a href="#micro" class="headerlink" title="micro"></a>micro</h2><p><a target="_blank" rel="noopener" href="https://github.com/zyedidia/micro">https://github.com/zyedidia/micro</a></p>
+<p>micro 是一个轻量级的终端编辑器，支持语法高亮、代码补全、主题切换等功能。</p>
+<p>安装：<code>brew install micro</code></p>
+<p>使用：<code>micro</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">micro --version</span><br><span class="line">micro file  打开文件</span><br></pre></td></tr></table></figure>
+
+<p>常用快捷键：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Ctrl + s 保存</span><br><span class="line">Ctrl + q 退出</span><br><span class="line">Ctrl + e 进入命令模式</span><br><span class="line">Ctrl + w 切换窗口</span><br></pre></td></tr></table></figure>
+
+<p>常用命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">keybindings: 给出默认的快捷键列表以及如何重新绑定它们</span><br><span class="line">defaultkeys: 给出更直接的快捷键命令列表和它们的作用</span><br><span class="line">plugins: 解释 micro 的插件系统以及如何创建自己的插件</span><br><span class="line">colors: 解释 micro 的颜色方案和语法高亮引擎以及如何创建自己的颜色方案或添加新的语言到引擎</span><br></pre></td></tr></table></figure>
+<p>例如，要打开插件的帮助页面，你可以运行 <code>&gt; help plugins</code>。</p>
+<h2 id="eza"><a href="#eza" class="headerlink" title="eza"></a>eza</h2><p><a target="_blank" rel="noopener" href="https://github.com/eza-community/eza">https://github.com/eza-community/eza</a></p>
+<p>eza  是一个现代的替代品，用于显示文件列表的命令行程序 ls，它提供了更多的功能和更好的默认设置。</p>
+<p>安装：<code>brew install eza</code></p>
+<p>使用：<code>eza</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">-l, --long                 使用长格式显示文件列表</span><br><span class="line">-G, --grid                 使用网格格式显示文件列表 (默认)</span><br><span class="line">-T, --tree                 树型递归显示目录</span><br><span class="line">-D, --only-dirs            只显示目录</span><br><span class="line">-f, --only-files           只显示文件</span><br><span class="line">-L, --level DEPTH          限制递归深度</span><br><span class="line"></span><br><span class="line">-m, --modified             按修改时间排序</span><br><span class="line">-u, --accessed             按访问时间排序</span><br><span class="line">-U, --created              按创建时间排序</span><br><span class="line">--changed                  按修改时间排序</span><br><span class="line">--time-style               时间格式 (default, iso, long-iso, full-iso, relative, or a custom style <span class="string">&#x27;+&lt;FORMAT&gt;&#x27;</span> like <span class="string">&#x27;+%Y-%m-%d %H:%M&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="tldr"><a href="#tldr" class="headerlink" title="tldr"></a>tldr</h2><p><a target="_blank" rel="noopener" href="https://github.com/tldr-pages/tldr">https://github.com/tldr-pages/tldr</a></p>
+<p>tldr 是一个命令行工具，用于显示命令的简短说明。</p>
+<p>安装：<code>brew install tldr</code></p>
+<p>使用：<code>tldr command</code></p>
+<h2 id="weekly-git-summary"><a href="#weekly-git-summary" class="headerlink" title="weekly-git-summary"></a>weekly-git-summary</h2><p><a target="_blank" rel="noopener" href="https://github.com/yinzhenyu-su/weekly-git-summary">https://github.com/yinzhenyu-su/weekly-git-summary</a></p>
+<p>一个跨平台的 CLI 工具，用于生成 Git 提交记录的周报汇总。支持多种输出格式（文本、JSON、Markdown），自动扫描项目目录并提取指定时间范围内的提交历史。</p>
+<p>安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm install -g weekly-git-summary</span><br><span class="line">or</span><br><span class="line">npx weekly-git-summary</span><br></pre></td></tr></table></figure>
+
+<p>基本用法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成当前目录的本周提交汇总</span></span><br><span class="line">weekly-git-summary</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或使用 npx</span></span><br><span class="line">npx weekly-git-summary</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 指定目录和时间范围</span></span><br><span class="line">weekly-git-summary --<span class="built_in">dir</span> ~/projects --since 2023-01-01 --<span class="keyword">until</span> 2023-01-31</span><br><span class="line"></span><br><span class="line"><span class="comment"># 过滤特定作者的提交</span></span><br><span class="line">weekly-git-summary --author <span class="string">&quot;张三&quot;</span> --since 2023-01-01</span><br><span class="line"></span><br><span class="line"><span class="comment"># 多作者过滤（OR 关系）</span></span><br><span class="line">weekly-git-summary --author <span class="string">&quot;张三&quot;</span> --author <span class="string">&quot;李四&quot;</span> --author <span class="string">&quot;王五&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用预设时间范围</span></span><br><span class="line">weekly-git-summary --time-range this-week</span><br><span class="line">weekly-git-summary --time-range last-month</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用传统提交规范分析</span></span><br><span class="line">weekly-git-summary --conventional --time-range this-week</span><br><span class="line"></span><br><span class="line"><span class="comment"># 消息模式过滤（支持正则表达式）</span></span><br><span class="line">weekly-git-summary --message-pattern <span class="string">&quot;feat|fix&quot;</span> --conventional</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出不同格式</span></span><br><span class="line">weekly-git-summary --json</span><br><span class="line">weekly-git-summary --md</span><br><span class="line">weekly-git-summary --html</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示帮助信息</span></span><br><span class="line">weekly-git-summary --<span class="built_in">help</span></span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#scc"><span class="toc-number">1.</span> <span class="toc-text">scc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#micro"><span class="toc-number">2.</span> <span class="toc-text">micro</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#eza"><span class="toc-number">3.</span> <span class="toc-text">eza</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tldr"><span class="toc-number">4.</span> <span class="toc-text">tldr</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#weekly-git-summary"><span class="toc-number">5.</span> <span class="toc-text">weekly-git-summary</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&text=命令行常用工具"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&title=命令行常用工具"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&is_video=false&description=命令行常用工具"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=命令行常用工具&body=Check out this article: https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&title=命令行常用工具"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&title=命令行常用工具"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&title=命令行常用工具"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&title=命令行常用工具"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&name=命令行常用工具&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://oooo0oooo0.github.io/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/&t=命令行常用工具"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    oooo0oooo0
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6fbb814b59b84ee181a7e023f0a159bd"}'></script>
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

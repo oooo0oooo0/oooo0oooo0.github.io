@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <!-- so meta -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+  <meta name="description" content="Vector 在 Syslog 采集与数据融合体系中的实践与踩坑总结 本文分享一次在生产环境中使用 Vector 作为 Syslog 统一接入层的实践经验，涵盖  TCP &#x2F; UDP Syslog 接入 Docker 部署注意事项 文件落盘作为缓冲 多业务动态输出 与后续数据同步、ES、融合任务的整体架构设计   一、整体架构设计在整个系统中，Vector 的定位非常清晰：  只负责“稳">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vector 数据管道使用简介">
+<meta property="og:url" content="https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="Vector 在 Syslog 采集与数据融合体系中的实践与踩坑总结 本文分享一次在生产环境中使用 Vector 作为 Syslog 统一接入层的实践经验，涵盖  TCP &#x2F; UDP Syslog 接入 Docker 部署注意事项 文件落盘作为缓冲 多业务动态输出 与后续数据同步、ES、融合任务的整体架构设计   一、整体架构设计在整个系统中，Vector 的定位非常清晰：  只负责“稳">
+<meta property="og:locale">
+<meta property="article:published_time" content="2025-12-30T07:05:15.000Z">
+<meta property="article:modified_time" content="2025-12-30T08:53:41.427Z">
+<meta property="article:author" content="oooo0oooo0">
+<meta name="twitter:card" content="summary">
+    
+      
+        
+          
+                    <link rel="shortcut icon" href="/images/favicon.ico">
+                    
+                      
+                        
+                          
+                                    <link rel="icon" type="image/png" href="/images/favicon-192x192.png"
+                                      sizes="192x192">
+                                    
+                                      
+                                        
+                                          
+                                                    <link rel="apple-touch-icon" sizes="180x180"
+                                                      href="/images/apple-touch-icon.png">
+                                                    
+                                                      
+                                                        
+                                                          <!-- title -->
+                                                          <title>
+                                                            vector 数据管道使用简介
+                                                          </title>
+                                                          <!-- async scripts -->
+                                                          <!-- Google Analytics -->
+
+
+                                                            <!-- Umami Analytics -->
+
+
+                                                              <!-- styles -->
+                                                              
+<link rel="stylesheet" href="/css/style.css">
+
+                                                                <!-- persian styles -->
+                                                                
+                                                                      <!-- rss -->
+                                                                      
+                                                                            
+                                                                                <!-- mathjax -->
+                                                                                
+                                                                                    
+                                                                                      <script
+                                                                                        src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+                                                                                      <script>mermaid.initialize({ startOnLoad: true, theme: "neutral" });</script>
+                                                                                      
+<meta name="generator" content="Hexo 8.1.1"></head>
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/12/19/%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&text=vector 数据管道使用简介"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&title=vector 数据管道使用简介"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&is_video=false&description=vector 数据管道使用简介"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=vector 数据管道使用简介&body=Check out this article: https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&title=vector 数据管道使用简介"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&title=vector 数据管道使用简介"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&title=vector 数据管道使用简介"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&title=vector 数据管道使用简介"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&name=vector 数据管道使用简介&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&t=vector 数据管道使用简介"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Vector-%E5%9C%A8-Syslog-%E9%87%87%E9%9B%86%E4%B8%8E%E6%95%B0%E6%8D%AE%E8%9E%8D%E5%90%88%E4%BD%93%E7%B3%BB%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%B8%8E%E8%B8%A9%E5%9D%91%E6%80%BB%E7%BB%93"><span class="toc-number">1.</span> <span class="toc-text">Vector 在 Syslog 采集与数据融合体系中的实践与踩坑总结</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="toc-number">1.1.</span> <span class="toc-text">一、整体架构设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Vector-Syslog-%E6%8E%A5%E5%85%A5%E9%85%8D%E7%BD%AE%EF%BC%88TCP-UDP%EF%BC%89"><span class="toc-number">1.2.</span> <span class="toc-text">二、Vector Syslog 接入配置（TCP + UDP）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%90%8C%E6%97%B6%E6%94%AF%E6%8C%81-TCP-%E5%92%8C-UDP"><span class="toc-number">1.2.1.</span> <span class="toc-text">1. 为什么同时支持 TCP 和 UDP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Syslog-Source-%E9%85%8D%E7%BD%AE%EF%BC%88RFC3164%EF%BC%89"><span class="toc-number">1.2.2.</span> <span class="toc-text">2. Syslog Source 配置（RFC3164）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Docker-%E9%83%A8%E7%BD%B2%E7%9A%84%E4%B8%80%E4%B8%AA%E2%80%9C%E8%87%B4%E5%91%BD%E7%BB%86%E8%8A%82%E2%80%9D"><span class="toc-number">1.3.</span> <span class="toc-text">三、Docker 部署的一个“致命细节”</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#UDP-%E7%AB%AF%E5%8F%A3%E6%98%A0%E5%B0%84%E5%BF%85%E9%A1%BB%E6%98%BE%E5%BC%8F%E5%A3%B0%E6%98%8E"><span class="toc-number">1.3.1.</span> <span class="toc-text">UDP 端口映射必须显式声明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%96%87%E4%BB%B6%E8%90%BD%E7%9B%98%EF%BC%9AVector-%E6%9C%80%E8%A2%AB%E4%BD%8E%E4%BC%B0%E7%9A%84%E8%83%BD%E5%8A%9B"><span class="toc-number">1.4.</span> <span class="toc-text">四、文件落盘：Vector 最被低估的能力</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E7%94%A8%E7%9B%B4%E6%8E%A5%E6%8E%A8-ES%EF%BC%9F"><span class="toc-number">1.4.1.</span> <span class="toc-text">为什么不用直接推 ES？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6-Sink-%E9%85%8D%E7%BD%AE%EF%BC%88%E6%8C%89%E5%B0%8F%E6%97%B6%E6%BB%9A%E5%8A%A8%EF%BC%89"><span class="toc-number">1.4.2.</span> <span class="toc-text">文件 Sink 配置（按小时滚动）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%B8%85%E7%90%86%E7%AD%96%E7%95%A5"><span class="toc-number">1.4.3.</span> <span class="toc-text">文件清理策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AD%96%E7%95%A5%E4%B8%80%EF%BC%9A%E6%8C%89%E6%97%B6%E9%97%B4%E6%B8%85%E7%90%86%EF%BC%88%E5%88%A0%E9%99%A4-5-%E5%A4%A9%E5%89%8D%E7%9A%84%E6%96%87%E4%BB%B6%EF%BC%89"><span class="toc-number">1.4.3.1.</span> <span class="toc-text">策略一：按时间清理（删除 5 天前的文件）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AD%96%E7%95%A5%E4%BA%8C%EF%BC%9A%E6%8C%89%E7%9B%AE%E5%BD%95%E5%A4%A7%E5%B0%8F%E6%B8%85%E7%90%86%EF%BC%88%E8%B6%85%E8%BF%87-1GB-%E5%88%A0%E9%99%A4%E6%9C%80%E6%97%A9%E6%96%87%E4%BB%B6%EF%BC%89"><span class="toc-number">1.4.3.2.</span> <span class="toc-text">策略二：按目录大小清理（超过 1GB 删除最早文件）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%A4%E7%A7%8D%E7%AD%96%E7%95%A5%E5%AF%B9%E6%AF%94"><span class="toc-number">1.4.3.3.</span> <span class="toc-text">两种策略对比</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%A4%9A%E4%B8%9A%E5%8A%A1%E5%8A%A8%E6%80%81%E8%BE%93%E5%87%BA%EF%BC%88%E6%97%A0%E9%9C%80%E5%8A%A8%E6%80%81-sink%EF%BC%89"><span class="toc-number">1.5.</span> <span class="toc-text">五、多业务动态输出（无需动态 sink）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A8%E8%8D%90%E5%81%9A%E6%B3%95%EF%BC%9Apath-%E6%A8%A1%E6%9D%BF-%E4%BA%8B%E4%BB%B6%E5%AD%97%E6%AE%B5"><span class="toc-number">1.5.1.</span> <span class="toc-text">推荐做法：path 模板 + 事件字段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%A6%E6%9D%A5%E7%9A%84%E5%A5%BD%E5%A4%84"><span class="toc-number">1.5.2.</span> <span class="toc-text">带来的好处</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E8%B0%83%E8%AF%95%E5%88%A9%E5%99%A8%EF%BC%9AConsole-Sink"><span class="toc-number">1.6.</span> <span class="toc-text">六、调试利器：Console Sink</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81Syslog-%E6%B5%8B%E8%AF%95%E4%B8%8E%E6%8E%92%E5%9D%91%E6%80%BB%E7%BB%93"><span class="toc-number">1.7.</span> <span class="toc-text">七、Syslog 测试与排坑总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-logger-%E5%91%BD%E4%BB%A4%E7%9A%84%E9%9A%90%E8%97%8F%E5%9D%91"><span class="toc-number">1.7.1.</span> <span class="toc-text">1. logger 命令的隐藏坑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-TCP-framing-%E6%8A%A5%E9%94%99%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="toc-number">1.7.2.</span> <span class="toc-text">2. TCP framing 报错的本质</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93%EF%BC%9AVector-%E5%9C%A8%E8%BF%99%E5%A5%97%E4%BD%93%E7%B3%BB%E4%B8%AD%E7%9A%84%E4%BB%B7%E5%80%BC"><span class="toc-number">1.8.</span> <span class="toc-text">八、总结：Vector 在这套体系中的价值</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%83%E9%80%82%E5%90%88%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">1.8.1.</span> <span class="toc-text">它适合做什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%83%E4%B8%8D%E8%AF%A5%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">1.8.2.</span> <span class="toc-text">它不该做什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE"><span class="toc-number">1.8.3.</span> <span class="toc-text">一些实践建议</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        vector 数据管道使用简介
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">oooo0oooo0</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-12-30T07:05:15.000Z" class="dt-published" itemprop="datePublished">2025-12-30</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="Vector-在-Syslog-采集与数据融合体系中的实践与踩坑总结"><a href="#Vector-在-Syslog-采集与数据融合体系中的实践与踩坑总结" class="headerlink" title="Vector 在 Syslog 采集与数据融合体系中的实践与踩坑总结"></a>Vector 在 Syslog 采集与数据融合体系中的实践与踩坑总结</h1><blockquote>
+<p>本文分享一次在生产环境中使用 Vector 作为 Syslog 统一接入层的实践经验，涵盖</p>
+<ul>
+<li>TCP &#x2F; UDP Syslog 接入</li>
+<li>Docker 部署注意事项</li>
+<li>文件落盘作为缓冲</li>
+<li>多业务动态输出</li>
+<li>与后续数据同步、ES、融合任务的整体架构设计</li>
+</ul>
+</blockquote>
+<h2 id="一、整体架构设计"><a href="#一、整体架构设计" class="headerlink" title="一、整体架构设计"></a>一、整体架构设计</h2><p>在整个系统中，Vector 的定位非常清晰：</p>
+<blockquote>
+<p><strong>只负责“稳定接入 + 标准化 + 落盘”，不承载任何业务逻辑</strong></p>
+</blockquote>
+<p>整体链路如下：</p>
+<pre class="mermaid">flowchart LR
+    %% ======================
+    %% 数据源
+    %% ======================
+    subgraph Sources["Syslog / 设备 外部系统"]
+        D1[认证日志<br>syslog形式]
+    end
+
+    %% ======================
+    %% Vector 容器
+    %% ======================
+    subgraph VectorContainer["adapter container"]
+        V[Vector服务<br>Syslog Source]
+        F[文件Sink<br>1小时滚动]
+    end
+
+    %% ======================
+    %% 共享存储
+    %% ======================
+    subgraph SharedVolume["共享 Volume"]
+        S[/Syslog 文件目录/]
+    end
+
+    %% ======================
+    %% 同步 容器
+    %% ======================
+    subgraph SyncContainer["sync container"]
+        Sync[同步服务<br>解析文件]
+    end
+
+    %% ======================
+    %% 后端服务
+    %% ======================
+    subgraph Backend["后端基础设施"]
+        ES[(Elasticsearch)]
+        MQ[(Redis<br>消息队列)]
+    end
+
+    %% ======================
+    %% 融合服务
+    %% ======================
+    subgraph Fusion["merge container"]
+        Consumer[融合任务消费者]
+        Calc[融合计算逻辑]
+    end
+
+    %% ======================
+    %% 数据流
+    %% ======================
+    D1 -->|tcp/udp主动推送| V
+
+    V --> F
+    F --> S
+
+    S --> Sync
+    Sync -->|写入过程数据| ES
+    Sync -->|下发融合任务| MQ
+
+    MQ --> Consumer
+    Consumer --> Calc
+    Calc -->|读取原始/过程数据| ES
+    Calc -->|写回融合结果| ES</pre>
+
+<p><strong>设计关键点</strong></p>
+<ul>
+<li>Vector 独立容器，职责单一</li>
+<li>文件作为天然缓冲层（削峰、回放、解耦）</li>
+<li>同步服务与融合服务完全异步</li>
+<li>ES 作为统一事实源（process + result）</li>
+</ul>
+<h2 id="二、Vector-Syslog-接入配置（TCP-UDP）"><a href="#二、Vector-Syslog-接入配置（TCP-UDP）" class="headerlink" title="二、Vector Syslog 接入配置（TCP + UDP）"></a>二、Vector Syslog 接入配置（TCP + UDP）</h2><h3 id="1-为什么同时支持-TCP-和-UDP"><a href="#1-为什么同时支持-TCP-和-UDP" class="headerlink" title="1. 为什么同时支持 TCP 和 UDP"></a>1. 为什么同时支持 TCP 和 UDP</h3><ul>
+<li><p>UDP</p>
+<ul>
+<li>设备、网络产品默认协议</li>
+<li>简单、高性能</li>
+<li>可接受少量丢失</li>
+</ul>
+</li>
+<li><p>TCP</p>
+<ul>
+<li>应用日志、关键系统</li>
+<li>保证送达</li>
+<li>易于调试</li>
+</ul>
+</li>
+</ul>
+<p>因此 Vector 同时监听两个端口。</p>
+<h3 id="2-Syslog-Source-配置（RFC3164）"><a href="#2-Syslog-Source-配置（RFC3164）" class="headerlink" title="2. Syslog Source 配置（RFC3164）"></a>2. Syslog Source 配置（RFC3164）</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">sources:</span></span><br><span class="line">  <span class="attr">syslog_in:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">syslog</span></span><br><span class="line">    <span class="attr">mode:</span> <span class="string">tcp</span></span><br><span class="line">    <span class="attr">address:</span> <span class="string">&quot;0.0.0.0:9000&quot;</span></span><br><span class="line">    <span class="attr">protocol:</span> <span class="string">rfc3164</span></span><br><span class="line">    <span class="attr">framing:</span> <span class="string">non-transparent</span>   <span class="comment"># 允许使用换行分隔</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">syslog_in_udp:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">syslog</span></span><br><span class="line">    <span class="attr">mode:</span> <span class="string">udp</span></span><br><span class="line">    <span class="attr">address:</span> <span class="string">&quot;0.0.0.0:514&quot;</span></span><br><span class="line">    <span class="attr">protocol:</span> <span class="string">rfc3164</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>关键说明</strong></p>
+<ul>
+<li><p>protocol: rfc3164</p>
+<ul>
+<li>兼容性最好（设备&#x2F;系统支持度最高）,否则默认使用 RFC5424，老旧设备可能不支持</li>
+</ul>
+</li>
+<li><p>TCP 下显式设置：<br>  <code>framing: non-transparent</code></p>
+</li>
+</ul>
+<h2 id="三、Docker-部署的一个“致命细节”"><a href="#三、Docker-部署的一个“致命细节”" class="headerlink" title="三、Docker 部署的一个“致命细节”"></a>三、Docker 部署的一个“致命细节”</h2><h3 id="UDP-端口映射必须显式声明"><a href="#UDP-端口映射必须显式声明" class="headerlink" title="UDP 端口映射必须显式声明"></a>UDP 端口映射必须显式声明</h3><p>❌ 错误示例（可能导致 UDP 收不到）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-p 514:514</span><br></pre></td></tr></table></figure>
+
+<p>✅ 正确做法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name vector \</span><br><span class="line">  -p 9000:9000/tcp \</span><br><span class="line">  -p 514:514/udp \</span><br><span class="line">  -v /data/vector:/etc/vector \</span><br><span class="line">  timberio/vector:nightly-alpine \</span><br><span class="line">  -c /etc/vector/vector-syslog.yaml</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>结论</strong>：TCP 正常、UDP 收不到，第一时间检查 Docker 端口协议映射。</p>
+</blockquote>
+<h2 id="四、文件落盘：Vector-最被低估的能力"><a href="#四、文件落盘：Vector-最被低估的能力" class="headerlink" title="四、文件落盘：Vector 最被低估的能力"></a>四、文件落盘：Vector 最被低估的能力</h2><h3 id="为什么不用直接推-ES？"><a href="#为什么不用直接推-ES？" class="headerlink" title="为什么不用直接推 ES？"></a>为什么不用直接推 ES？</h3><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Vector → ES</td>
+<td>强耦合、ES 抖动风险, 主业务稳定性要求（防止日志流量波动压垮 ES）</td>
+</tr>
+<tr>
+<td>Vector → MQ</td>
+<td>顺序&#x2F;重放复杂，引入额外组件</td>
+</tr>
+<tr>
+<td><strong>Vector → 文件</strong></td>
+<td>✅ 解耦 &#x2F; 缓冲 &#x2F; 可回放 &#x2F; 成本可控</td>
+</tr>
+</tbody></table>
+<h3 id="文件-Sink-配置（按小时滚动）"><a href="#文件-Sink-配置（按小时滚动）" class="headerlink" title="文件 Sink 配置（按小时滚动）"></a>文件 Sink 配置（按小时滚动）</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">sinks:</span></span><br><span class="line">  <span class="attr">syslog_file:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">file</span></span><br><span class="line">    <span class="attr">inputs:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">syslog_in</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">syslog_in_udp</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">/var/vector/data/vector-%Y-%m-%d-%H.log</span></span><br><span class="line">    <span class="attr">encoding:</span></span><br><span class="line">      <span class="attr">codec:</span> <span class="string">json</span></span><br><span class="line">    <span class="attr">buffer:</span></span><br><span class="line">      <span class="attr">type:</span> <span class="string">memory</span></span><br><span class="line">      <span class="attr">max_size:</span> <span class="string">10MB</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Vector 的 memory buffer 的 max_events 默认单位是事件数，而 max_size 应该是字节数（如 104857600 或 100MB）。建议根据实际日志大小调整此值。</p>
+</blockquote>
+<h3 id="文件清理策略"><a href="#文件清理策略" class="headerlink" title="文件清理策略"></a>文件清理策略</h3><p>Vector 本身不提供文件清理功能，需要配合外部脚本实现。以下是两种常用策略：</p>
+<h4 id="策略一：按时间清理（删除-5-天前的文件）"><a href="#策略一：按时间清理（删除-5-天前的文件）" class="headerlink" title="策略一：按时间清理（删除 5 天前的文件）"></a>策略一：按时间清理（删除 5 天前的文件）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># cleanup_by_time.sh</span></span><br><span class="line"><span class="comment"># 删除 5 天前的日志文件</span></span><br><span class="line"></span><br><span class="line">LOG_DIR=<span class="string">&quot;/var/vector/data&quot;</span></span><br><span class="line">RETENTION_DAYS=5</span><br><span class="line"></span><br><span class="line">find <span class="string">&quot;<span class="variable">$LOG_DIR</span>&quot;</span> -name <span class="string">&quot;*.log&quot;</span> -<span class="built_in">type</span> f -mtime +<span class="variable">$RETENTION_DAYS</span> -delete</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;<span class="subst">$(date &#x27;+%Y-%m-%d %H:%M:%S&#x27;)</span> 已清理 <span class="variable">$&#123;RETENTION_DAYS&#125;</span> 天前的日志文件&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>配合 crontab 定时执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 每天凌晨 3 点执行清理</span></span><br><span class="line">0 3 * * * /opt/scripts/cleanup_by_time.sh &gt;&gt; /var/log/vector_cleanup.log 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<h4 id="策略二：按目录大小清理（超过-1GB-删除最早文件）"><a href="#策略二：按目录大小清理（超过-1GB-删除最早文件）" class="headerlink" title="策略二：按目录大小清理（超过 1GB 删除最早文件）"></a>策略二：按目录大小清理（超过 1GB 删除最早文件）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># cleanup_by_size.sh</span></span><br><span class="line"><span class="comment"># 当目录超过 1GB 时，删除最早的文件直到低于阈值</span></span><br><span class="line"></span><br><span class="line">LOG_DIR=<span class="string">&quot;/var/vector/data&quot;</span></span><br><span class="line">MAX_SIZE_MB=1024  <span class="comment"># 1GB</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">get_dir_size_mb</span></span>() &#123;</span><br><span class="line">    <span class="built_in">du</span> -sm <span class="string">&quot;<span class="variable">$LOG_DIR</span>&quot;</span> 2&gt;/dev/null | <span class="built_in">cut</span> -f1</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">current_size=$(get_dir_size_mb)</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> [ <span class="string">&quot;<span class="variable">$current_size</span>&quot;</span> -gt <span class="string">&quot;<span class="variable">$MAX_SIZE_MB</span>&quot;</span> ]; <span class="keyword">do</span></span><br><span class="line">    <span class="comment"># 找到最早的文件并删除</span></span><br><span class="line">    oldest_file=$(find <span class="string">&quot;<span class="variable">$LOG_DIR</span>&quot;</span> -name <span class="string">&quot;*.log&quot;</span> -<span class="built_in">type</span> f -<span class="built_in">printf</span> <span class="string">&#x27;%T+ %p\n&#x27;</span> 2&gt;/dev/null | <span class="built_in">sort</span> | <span class="built_in">head</span> -1 | <span class="built_in">cut</span> -d<span class="string">&#x27; &#x27;</span> -f2-)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> [ -z <span class="string">&quot;<span class="variable">$oldest_file</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;<span class="subst">$(date &#x27;+%Y-%m-%d %H:%M:%S&#x27;)</span> 没有找到可删除的文件&quot;</span></span><br><span class="line">        <span class="built_in">break</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">rm</span> -f <span class="string">&quot;<span class="variable">$oldest_file</span>&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;<span class="subst">$(date &#x27;+%Y-%m-%d %H:%M:%S&#x27;)</span> 已删除: <span class="variable">$oldest_file</span>&quot;</span></span><br><span class="line"></span><br><span class="line">    current_size=$(get_dir_size_mb)</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;<span class="subst">$(date &#x27;+%Y-%m-%d %H:%M:%S&#x27;)</span> 当前目录大小: <span class="variable">$&#123;current_size&#125;</span>MB&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>配合 crontab 定时执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 每小时检查一次目录大小</span></span><br><span class="line">0 * * * * /opt/scripts/cleanup_by_size.sh &gt;&gt; /var/log/vector_cleanup.log 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<h4 id="两种策略对比"><a href="#两种策略对比" class="headerlink" title="两种策略对比"></a>两种策略对比</h4><table>
+<thead>
+<tr>
+<th>策略</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>按时间</td>
+<td>简单可预测，保证回溯窗口</td>
+<td>磁盘占用不可控</td>
+<td>日志量稳定的环境</td>
+</tr>
+<tr>
+<td>按大小</td>
+<td>磁盘占用可控</td>
+<td>高峰期可能丢失较新数据</td>
+<td>磁盘空间有限的环境</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>生产建议</strong>：可以同时启用两种策略，按时间清理作为主策略，按大小清理作为兜底保护。</p>
+</blockquote>
+<h2 id="五、多业务动态输出（无需动态-sink）"><a href="#五、多业务动态输出（无需动态-sink）" class="headerlink" title="五、多业务动态输出（无需动态 sink）"></a>五、多业务动态输出（无需动态 sink）</h2><p>Vector <strong>不支持运行时动态新增 sink</strong>，但支持更优雅的方式。</p>
+<h3 id="推荐做法：path-模板-事件字段"><a href="#推荐做法：path-模板-事件字段" class="headerlink" title="推荐做法：path 模板 + 事件字段"></a>推荐做法：path 模板 + 事件字段</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">path:</span> <span class="string">/var/vector/data/&#123;&#123;</span> <span class="string">biz</span> <span class="string">&#125;&#125;/%Y-%m-%d-%H.log</span></span><br></pre></td></tr></table></figure>
+<p>配合 <code>remap</code>：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">transforms:</span></span><br><span class="line">  <span class="attr">normalize:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">remap</span></span><br><span class="line">    <span class="attr">inputs:</span> [<span class="string">syslog_in</span>, <span class="string">syslog_in_udp</span>]</span><br><span class="line">    <span class="attr">source:</span> <span class="string">|</span></span><br><span class="line"><span class="string">      if .appname == &quot;nginx&quot; &#123;</span></span><br><span class="line"><span class="string">        .biz = &quot;web&quot;</span></span><br><span class="line"><span class="string">      &#125; else if .appname == &quot;sshd&quot; &#123;</span></span><br><span class="line"><span class="string">        .biz = &quot;security&quot;</span></span><br><span class="line"><span class="string">      &#125; else &#123;</span></span><br><span class="line"><span class="string">        .biz = &quot;default&quot;</span></span><br><span class="line"><span class="string">      &#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="带来的好处"><a href="#带来的好处" class="headerlink" title="带来的好处"></a>带来的好处</h3><ul>
+<li>新业务 无需修改 Vector 配置</li>
+<li>目录天然成为业务边界</li>
+<li>同步逻辑保持通用</li>
+</ul>
+<h2 id="六、调试利器：Console-Sink"><a href="#六、调试利器：Console-Sink" class="headerlink" title="六、调试利器：Console Sink"></a>六、调试利器：Console Sink</h2><p>接入新设备时，经常面临一个问题：</p>
+<blockquote>
+<p>到底有没有日志发过来？</p>
+</blockquote>
+<p>解决方案：加一个控制台输出。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">sinks:</span></span><br><span class="line">  <span class="attr">syslog_console:</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">console</span></span><br><span class="line">    <span class="attr">inputs:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">syslog_in</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">syslog_in_udp</span></span><br><span class="line">    <span class="attr">encoding:</span></span><br><span class="line">      <span class="attr">codec:</span> <span class="string">json</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="七、Syslog-测试与排坑总结"><a href="#七、Syslog-测试与排坑总结" class="headerlink" title="七、Syslog 测试与排坑总结"></a>七、Syslog 测试与排坑总结</h2><h3 id="1-logger-命令的隐藏坑"><a href="#1-logger-命令的隐藏坑" class="headerlink" title="1. logger 命令的隐藏坑"></a>1. logger 命令的隐藏坑</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">logger --tcp   <span class="comment"># 强制 TCP</span></span><br><span class="line">logger --udp   <span class="comment"># 强制 UDP</span></span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">logger -T   <span class="comment"># TCP(部分版本)</span></span><br><span class="line">logger -d   <span class="comment"># UDP</span></span><br></pre></td></tr></table></figure>
+<p>❌ 错误示例（以为是 UDP，实际是 TCP）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logger -n 1.2.3.4 -P 514 -T <span class="string">&quot;msg&quot;</span></span><br></pre></td></tr></table></figure>
+<p>✅ 正确UDP：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logger -n 1.2.3.4 -P 514 -d <span class="string">&quot;msg&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-TCP-framing-报错的本质"><a href="#2-TCP-framing-报错的本质" class="headerlink" title="2. TCP framing 报错的本质"></a>2. TCP framing 报错的本质</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Failed framing bytes</span><br><span class="line">Unable to decode message len as number</span><br></pre></td></tr></table></figure>
+<p>原因：</p>
+<ul>
+<li>Vector 默认 TCP 使用 octet-counting</li>
+<li>客户端没发长度<br>解决：</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">framing:</span> <span class="string">non-transparent</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="八、总结：Vector-在这套体系中的价值"><a href="#八、总结：Vector-在这套体系中的价值" class="headerlink" title="八、总结：Vector 在这套体系中的价值"></a>八、总结：Vector 在这套体系中的价值</h2><blockquote>
+<p><strong>Vector ≠ 日志分析工具</strong></p>
+<p><strong>Vector &#x3D; 高性能、可控、可组合的日志“入口层”</strong></p>
+</blockquote>
+<h3 id="它适合做什么"><a href="#它适合做什么" class="headerlink" title="它适合做什么"></a>它适合做什么</h3><ul>
+<li>Syslog &#x2F; 文件 &#x2F; TCP &#x2F; UDP 统一接入</li>
+<li>标准化、结构化</li>
+<li>稳定落盘</li>
+</ul>
+<h3 id="它不该做什么"><a href="#它不该做什么" class="headerlink" title="它不该做什么"></a>它不该做什么</h3><ul>
+<li>业务逻辑</li>
+<li>融合计算</li>
+<li>ES 强绑定</li>
+</ul>
+<h3 id="一些实践建议"><a href="#一些实践建议" class="headerlink" title="一些实践建议"></a>一些实践建议</h3><ul>
+<li>生产环境 优先 RFC3164</li>
+<li>TCP 明确 framing，UDP 明确端口映射</li>
+<li>文件作为“第一落点”</li>
+<li>业务扩展靠字段和目录，不靠配置膨胀</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Vector-%E5%9C%A8-Syslog-%E9%87%87%E9%9B%86%E4%B8%8E%E6%95%B0%E6%8D%AE%E8%9E%8D%E5%90%88%E4%BD%93%E7%B3%BB%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5%E4%B8%8E%E8%B8%A9%E5%9D%91%E6%80%BB%E7%BB%93"><span class="toc-number">1.</span> <span class="toc-text">Vector 在 Syslog 采集与数据融合体系中的实践与踩坑总结</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="toc-number">1.1.</span> <span class="toc-text">一、整体架构设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Vector-Syslog-%E6%8E%A5%E5%85%A5%E9%85%8D%E7%BD%AE%EF%BC%88TCP-UDP%EF%BC%89"><span class="toc-number">1.2.</span> <span class="toc-text">二、Vector Syslog 接入配置（TCP + UDP）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%90%8C%E6%97%B6%E6%94%AF%E6%8C%81-TCP-%E5%92%8C-UDP"><span class="toc-number">1.2.1.</span> <span class="toc-text">1. 为什么同时支持 TCP 和 UDP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Syslog-Source-%E9%85%8D%E7%BD%AE%EF%BC%88RFC3164%EF%BC%89"><span class="toc-number">1.2.2.</span> <span class="toc-text">2. Syslog Source 配置（RFC3164）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Docker-%E9%83%A8%E7%BD%B2%E7%9A%84%E4%B8%80%E4%B8%AA%E2%80%9C%E8%87%B4%E5%91%BD%E7%BB%86%E8%8A%82%E2%80%9D"><span class="toc-number">1.3.</span> <span class="toc-text">三、Docker 部署的一个“致命细节”</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#UDP-%E7%AB%AF%E5%8F%A3%E6%98%A0%E5%B0%84%E5%BF%85%E9%A1%BB%E6%98%BE%E5%BC%8F%E5%A3%B0%E6%98%8E"><span class="toc-number">1.3.1.</span> <span class="toc-text">UDP 端口映射必须显式声明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%96%87%E4%BB%B6%E8%90%BD%E7%9B%98%EF%BC%9AVector-%E6%9C%80%E8%A2%AB%E4%BD%8E%E4%BC%B0%E7%9A%84%E8%83%BD%E5%8A%9B"><span class="toc-number">1.4.</span> <span class="toc-text">四、文件落盘：Vector 最被低估的能力</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E7%94%A8%E7%9B%B4%E6%8E%A5%E6%8E%A8-ES%EF%BC%9F"><span class="toc-number">1.4.1.</span> <span class="toc-text">为什么不用直接推 ES？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6-Sink-%E9%85%8D%E7%BD%AE%EF%BC%88%E6%8C%89%E5%B0%8F%E6%97%B6%E6%BB%9A%E5%8A%A8%EF%BC%89"><span class="toc-number">1.4.2.</span> <span class="toc-text">文件 Sink 配置（按小时滚动）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%B8%85%E7%90%86%E7%AD%96%E7%95%A5"><span class="toc-number">1.4.3.</span> <span class="toc-text">文件清理策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AD%96%E7%95%A5%E4%B8%80%EF%BC%9A%E6%8C%89%E6%97%B6%E9%97%B4%E6%B8%85%E7%90%86%EF%BC%88%E5%88%A0%E9%99%A4-5-%E5%A4%A9%E5%89%8D%E7%9A%84%E6%96%87%E4%BB%B6%EF%BC%89"><span class="toc-number">1.4.3.1.</span> <span class="toc-text">策略一：按时间清理（删除 5 天前的文件）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AD%96%E7%95%A5%E4%BA%8C%EF%BC%9A%E6%8C%89%E7%9B%AE%E5%BD%95%E5%A4%A7%E5%B0%8F%E6%B8%85%E7%90%86%EF%BC%88%E8%B6%85%E8%BF%87-1GB-%E5%88%A0%E9%99%A4%E6%9C%80%E6%97%A9%E6%96%87%E4%BB%B6%EF%BC%89"><span class="toc-number">1.4.3.2.</span> <span class="toc-text">策略二：按目录大小清理（超过 1GB 删除最早文件）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%A4%E7%A7%8D%E7%AD%96%E7%95%A5%E5%AF%B9%E6%AF%94"><span class="toc-number">1.4.3.3.</span> <span class="toc-text">两种策略对比</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%A4%9A%E4%B8%9A%E5%8A%A1%E5%8A%A8%E6%80%81%E8%BE%93%E5%87%BA%EF%BC%88%E6%97%A0%E9%9C%80%E5%8A%A8%E6%80%81-sink%EF%BC%89"><span class="toc-number">1.5.</span> <span class="toc-text">五、多业务动态输出（无需动态 sink）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A8%E8%8D%90%E5%81%9A%E6%B3%95%EF%BC%9Apath-%E6%A8%A1%E6%9D%BF-%E4%BA%8B%E4%BB%B6%E5%AD%97%E6%AE%B5"><span class="toc-number">1.5.1.</span> <span class="toc-text">推荐做法：path 模板 + 事件字段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%A6%E6%9D%A5%E7%9A%84%E5%A5%BD%E5%A4%84"><span class="toc-number">1.5.2.</span> <span class="toc-text">带来的好处</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E8%B0%83%E8%AF%95%E5%88%A9%E5%99%A8%EF%BC%9AConsole-Sink"><span class="toc-number">1.6.</span> <span class="toc-text">六、调试利器：Console Sink</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81Syslog-%E6%B5%8B%E8%AF%95%E4%B8%8E%E6%8E%92%E5%9D%91%E6%80%BB%E7%BB%93"><span class="toc-number">1.7.</span> <span class="toc-text">七、Syslog 测试与排坑总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-logger-%E5%91%BD%E4%BB%A4%E7%9A%84%E9%9A%90%E8%97%8F%E5%9D%91"><span class="toc-number">1.7.1.</span> <span class="toc-text">1. logger 命令的隐藏坑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-TCP-framing-%E6%8A%A5%E9%94%99%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="toc-number">1.7.2.</span> <span class="toc-text">2. TCP framing 报错的本质</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93%EF%BC%9AVector-%E5%9C%A8%E8%BF%99%E5%A5%97%E4%BD%93%E7%B3%BB%E4%B8%AD%E7%9A%84%E4%BB%B7%E5%80%BC"><span class="toc-number">1.8.</span> <span class="toc-text">八、总结：Vector 在这套体系中的价值</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%83%E9%80%82%E5%90%88%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">1.8.1.</span> <span class="toc-text">它适合做什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%83%E4%B8%8D%E8%AF%A5%E5%81%9A%E4%BB%80%E4%B9%88"><span class="toc-number">1.8.2.</span> <span class="toc-text">它不该做什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE"><span class="toc-number">1.8.3.</span> <span class="toc-text">一些实践建议</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&text=vector 数据管道使用简介"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&title=vector 数据管道使用简介"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&is_video=false&description=vector 数据管道使用简介"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=vector 数据管道使用简介&body=Check out this article: https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&title=vector 数据管道使用简介"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&title=vector 数据管道使用简介"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&title=vector 数据管道使用简介"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&title=vector 数据管道使用简介"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&name=vector 数据管道使用简介&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://oooo0oooo0.github.io/2025/12/30/vector-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B/&t=vector 数据管道使用简介"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    oooo0oooo0
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6fbb814b59b84ee181a7e023f0a159bd"}'></script>
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
